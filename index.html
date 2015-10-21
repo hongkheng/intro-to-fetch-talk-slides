@@ -1,0 +1,480 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="utf-8">
+
+		<title>reveal.js - The HTML Presentation Framework</title>
+
+		<meta name="description" content="A framework for easily creating beautiful presentations using HTML">
+		<meta name="author" content="Hakim El Hattab">
+
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+
+		<link rel="stylesheet" href="css/reveal.css">
+		<link rel="stylesheet" href="css/theme/solarized.css" id="theme">
+
+		<!-- Code syntax highlighting -->
+		<link rel="stylesheet" href="lib/css/zenburn.css">
+
+		<!-- Printing and PDF exports -->
+		<script>
+			var link = document.createElement( 'link' );
+			link.rel = 'stylesheet';
+			link.type = 'text/css';
+			link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+			document.getElementsByTagName( 'head' )[0].appendChild( link );
+		</script>
+
+		<!--[if lt IE 9]>
+		<script src="lib/js/html5shiv.js"></script>
+		<![endif]-->
+	</head>
+
+	<body>
+
+		<div class="reveal">
+
+			<!-- Any section element inside of this container is displayed as a slide -->
+			<div class="slides">
+				<section id="intro">
+					<h1>Introduction to fetch() api</h1>
+					<p>
+						<small>By <a href="http://hakim.se">Yap Hong Kheng</a> / <a href="http://twitter.com/hakimel">@hongkheng</a></small>
+					</p>
+				</section>
+
+				<section id="xhr">
+					<h2>XHR</h2>
+        <pre><code class="hljs">
+          var xhr = new XmlHttpRequest();
+          xhr.open('GET', './some-api/some.json', true);
+          xhr.onload = function() {
+            if(xhr.status >== 200 && xhr.status <== 301 ) {
+              var data = JSON.parse(xhr.responseText);
+              console.log(data);
+            }
+          };
+          xhr.onerror = function(err) {
+            console.log('Cannot fetch data', err);
+          };
+          xhr.send();
+        </code></pre>
+				</section>
+
+				<section id="why-fetch">
+					<h2>Why?</h2>
+					<section id="why-01">
+						<p>Replacement for XmlHttpRequest (xhr)</p>
+						<p>Aim to be more powerful and flexible than XHR</p>
+						<p>Lower level than XHR</p>
+					</section>
+					<section>
+						<p>es6</p>
+						<p>Promise</p>
+					</section>
+					<section>
+						<p>Use with Service Worker</p>
+					</section>
+				</section>
+
+				<section id="what-fetch">
+					<section>
+					<h2>what is fetch()?</h2>
+					<pre><code>
+// Basic example, by default is a 'GET' request
+fetch('url')
+  .then(function(response) {
+	// returns a Response object which is a Promise
+  });
+      </code></pre>
+</section>
+<section>
+<h2>what is fetch()?</h2>
+	<p>Different ways to initialize fetch</p>
+      <pre><code>
+ // more common syntax
+fetch('url', {
+  method: 'PUT',
+  headers: {
+  	'Content-Type': 'application/json'
+  }
+}).then(function(response){
+	// do something with response
+});</code></pre>
+      	</section>
+      	<section>
+      	<h2>what is fetch()?</h2>
+      		<img data-src="/imgs/fetch-browsers.png" alt="browsers">
+      	</section>
+
+      	<section>
+      	<h2>what is fetch()?</h2>
+		<p><a href="https://developer.mozilla.org/en/docs/Web/API/Fetch_API">https://developer.mozilla.org/en/docs/Web/API/Fetch_API</a></p>
+		<p><a href="https://fetch.spec.whatwg.org/">https://fetch.spec.whatwg.org/</a></p>
+					</section>
+				</section>
+
+				<section id="promise">
+					<h2>Quick Promise refresh</h2>
+					<section>
+						<p>fetch() uses browser native Promise</p>
+
+						<p><a href="https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/Promise">https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/Promise</a></p>
+					</section>
+					<section>
+					<pre><code>
+var p1 = new Promise(function(resolve, reject){
+	// do something 
+	var response = { some: 'data'};
+	// Fulfilled with a value
+	resolve(response);
+});
+
+p1.then(function(response) {
+	console.log('Fulfilled', response);
+}).catch(function(reason){ // rejected
+	console.log('Error', reason);
+});
+					</code></pre>						
+					</section>
+				</section>
+
+				<section id="basic-fetch-es5">
+					<h2>Basic fetch()</h2>
+					<section>
+					<h3>es5</h3>
+        <pre><code>
+fetch('./some-api/some.json')
+  .then(function(response){
+  if (response.status >== 200 && response.status < 300) {
+    return response.json();
+  } else {
+    var error = new Error(response.statusText);
+    error.response = response;
+    throw error;
+  }
+}).catch(function(error){
+    console.log(error);
+});
+          </code></pre>						
+					</section>
+					<section>
+					<h3>es6</h3>				
+        <pre><code>
+fetch('./some-api/some.json')
+.then(response => {
+  if (response.status >== 200 && response.status < 300) {
+    return response.json();
+  } else {
+    var error = new Error(response.statusText);
+    error.response = response;
+    throw error;
+  }
+}).catch(error => {
+    console.log(error);
+});
+          </code></pre>
+          <p class="fragment">examples later on will be in es6</p>
+					</section>
+				</section>
+
+				<section>
+					<h2>Building blocks of fetch</h2>
+        <ul>
+          <li>Headers - response/request headers</li>
+          <li>Body - Mixin implemented by Response & Request</li>
+          <ul>
+          	<li>Request</li>
+          	<li>Response</li>
+          </ul>
+        </ul>					
+				</section>
+
+				<section id="fetch-headers">
+				<h2>fetch() - Headers</h2>
+					<section id="fetch-headers-01">
+      <p>In normal XHR headers it willl look like:</p>
+        <pre><code>
+...
+var basicAuth = 'Basic ' + btoa(username + ':' + password);
+xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
+xhr.setRequestHeader('Authorization', basicAuth);
+...
+          </code></pre>
+					</section>
+					<section>
+						<p>In fetch(), you can pass headers like this. e.g an POST method</p>
+        <pre><code>
+  let authHeader = 'Basic ' + btoa(username + ':' + password);
+
+  fetch(url, {
+    method: 'POST',
+    credentials: 'include',
+    headers: {
+        'Authorization': authHeader,
+        'Content-Type': 'application/json;charset=UTF-8'
+    }
+  }).then(response => {
+    return response.json();
+  }); 
+  // highlight the headers objects
+          </code></pre>						
+					</section>
+					<section>
+      <p>You can also define in a variable form</p>
+      <pre><code>
+  var headers = new Headers();
+  headers.append(Content-Type','application/json;charset=UTF-8');
+
+  ...
+  // define back in fetch
+  fetch(url, {
+    method: 'POST',
+    headers: headers
+    ...
+  });
+        </code></pre>						
+					</section>
+					<section>
+						<p>Query the type of <code>Headers</code> return by the <code>Response</code> </p>
+						<pre><code>
+fetch('url').then(response => {
+  // determine the how to parse the response type
+  // via the headers
+  if(response.headers.get('Content-Type') === 'application/json; charset=UTF-8') {
+	 return response.json();
+  } else {
+    return response.text();
+  }
+}).then(data => data)
+.catch(error => error);
+						</code></pre>
+					</section>
+					<section>
+						<p>More on Headers</p>
+
+						<p><a href="https://developer.mozilla.org/en-US/docs/Web/API/Headers">https://developer.mozilla.org/en-US/docs/Web/API/Headers</a></p>
+					</section>
+				</section>
+
+				<section id="fetch-request">
+					<section>
+					<h2>fetch() - Request</h2>
+					<p>Create a new Request object to initialize fetch().</p>
+					<p>Read-only object</p>					
+					<pre><code data-trim>
+						// Note: the url will try to find your root domain url.
+var request = new Request('someimage.png');
+var url = request.url; // http://yourdomain/someimage.png
+fetch(request).then(response => response);
+
+// OR
+var request = new Request('someimage.png', {
+	method: 'GET'
+});
+
+fetch(request).then(response => response); 				
+</code></pre>						
+					</section>
+
+					<section>
+						<h3>With Service Worker</h3>
+						<pre><code>
+// from MDN
+self.addEventListener('fetch', function(event) {
+  console.log('Handling fetch event for', event.request.url);
+
+  event.respondWith(
+    caches.match(event.request).then(function(response) {
+      if (response) {
+        console.log('Found response in cache:', response);
+
+        return response;
+      }
+      console.log('No response found in cache. About to fetch from network...');
+
+      return fetch(event.request).then(function(response) {
+        console.log('Response from network is:', response);
+
+        return response;
+      }).catch(function(error) {
+        console.error('Fetching failed:', error);
+
+        throw error;
+      });
+    })
+  );
+});
+						</code></pre>
+					</section>
+
+					<section>
+						<p>More on Request</p>
+
+						<p><a href="https://developer.mozilla.org/en-US/docs/Web/API/Request">https://developer.mozilla.org/en-US/docs/Web/API/Request</a></p>
+					</section>					
+				</section>
+
+				<section id="fetch-response">
+					<section>
+					<h2>fetch() - Response</h2>
+<p>Let's look at the response object and see what it returns</p>
+<a href="http://jsbin.com/yolivap/edit?html,js,output">http://jsbin.com/yolivap/edit?html,js,output</a>
+					</section>
+					<section>
+						<p>More on Response</p>
+
+						<p><a href="https://developer.mozilla.org/en-US/docs/Web/API/Response">https://developer.mozilla.org/en-US/docs/Web/API/Response</a></p>
+					</section>
+				</section>
+
+				<section id="fetch-body">
+				<h2>fetch() - Body</h2>
+					<section>
+		<p>Mixin that is implemented by <code>Response</code> & <code>Request</code></p>
+
+      <p>Can be <code>FormData</code>, <code>JSON</code>, <code>string</code>, <code>blob</code>, <code>ArrayBuffer</code></p>
+					</section>
+					<section>
+						<h2>Passing Data to server</h2>
+	<pre><code data-trim>
+// Passing a JSON data
+fetch('url', {
+  method: 'PUT',
+  headers: {
+    'Content-Type': 'application/json;charset=UTF-8' 
+  },
+  body: JSON.stringify({ some: 'data'})
+});		
+	</code></pre>
+					</section>
+
+					<section>
+        <pre><code data-trim>
+fetch('url')
+	.then(response =>  response.json())
+	.then(data => data); // -- this is a parsed JSON data!
+
+//same for plain text
+...
+return response.text();
+
+// or status message
+... 
+return response.statusText();
+          </code></pre>						
+					</section>
+
+					<section>
+						<p>More on Body</p>
+
+						<p><a href="https://developer.mozilla.org/en-US/docs/Web/API/Body">https://developer.mozilla.org/en-US/docs/Web/API/Body</a></p>
+					</section>
+				</section>
+
+				<section id="errors">
+					<h2>Handling Errors</h2>
+
+					<section>
+
+					<p>Caveat: HTTP error status would not be rejected. It is still consider a valid response.</p>
+
+					<p>Solution: Check for valid <code>response.status</code> or <code>response.ok</code> <br />
+							<br />
+							Throw error when it is not valid and do a <code>catch()</code>.
+					</p>
+					</section>
+					<section>
+        <pre><code>
+fetch('./some-api/some.json')
+  .then(response => {
+  // Check for status codes
+  if (response.status >== 200 && response.status < 300) {
+    return response.json();
+  } else {
+    var error = new Error(response.statusText);
+    error.response = response;
+    throw error;
+  }
+}).catch(error => {
+    console.log(error);
+});
+          </code></pre>
+          		</section>
+				</section>
+
+				<section>
+					<h1>Demo</h1>
+
+					<p>Use fetch with Spotify API</p>
+				</section>
+
+				<section>
+					<section>
+					<h2>Conclusion</h2>
+
+					<h3>So should you use fetch today?</h3>
+
+					<p class="fragment">It isn't finish... so... </p>
+					
+					<p class="fragment">polyfill: <a href="https://github.com/github/fetch">github/fetch</a></p>
+
+					</section>
+					<section>
+						<h2>Issues</h2>
+					<ul>
+						<li>Cannot abort a sent request</li>
+						<li>No onprogress event (waiting for Streams API)</li>
+					</ul>
+    <p><a href="https://github.com/whatwg/streams">https://github.com/whatwg/streams</a></p>
+    <p><a href="http://blogs.igalia.com/xrcalvar/2015/07/23/readablestream-almost-ready/">http://blogs.igalia.com/xrcalvar/2015/07/23/readablestream-almost-ready/</a></p>
+    </section>
+				</section>
+
+				<section>
+					<h2>Thank you!</h2>
+
+					<p>References: </p>
+						<p><a href="https://jakearchibald.com/2015/thats-so-fetch/">https://jakearchibald.com/2015/thats-so-fetch/</a> </p>
+						<p><a href="https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API">https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API</a></p>
+					</p>
+				</section>
+
+			</div>
+
+		</div>
+
+		<script src="lib/js/head.min.js"></script>
+		<script src="js/reveal.js"></script>
+
+		<script>
+
+			// Full list of configuration options available at:
+			// https://github.com/hakimel/reveal.js#configuration
+			Reveal.initialize({
+				controls: true,
+				progress: true,
+				history: true,
+				center: true,
+
+				transition: 'slide', // none/fade/slide/convex/concave/zoom
+
+				// Optional reveal.js plugins
+				dependencies: [
+					{ src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+					{ src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/highlight/highlight.js', async: true, condition: function() { return !!document.querySelector( 'pre code' ); }, callback: function() { hljs.initHighlightingOnLoad(); } },
+					{ src: 'plugin/zoom-js/zoom.js', async: true },
+					{ src: 'plugin/notes/notes.js', async: true }
+				]
+			});
+
+		</script>
+
+	</body>
+</html>
